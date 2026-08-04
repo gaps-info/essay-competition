@@ -1,0 +1,232 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+const chapters = ["研究動機", "文獻探討", "研究方法", "研究結果與分析", "結論與建議"];
+
+const prompts = [
+  {
+    title: "第一節｜研究動機",
+    question: "用兩段文字，說清楚你為什麼想研究這個問題",
+    description: "篇幅不用多，重點是讓讀者從客觀現象走進你的觀察與疑問。研究問題先在第二段自然浮現，再交給下一節承接。",
+    tip: "第一段說現象，第二段寫你的想法。避免塞入太多背景資料，也不用急著回答問題。",
+  },
+];
+
+const coachChecks = [
+  "說明了具體、可理解的現象",
+  "現象有資料、事件或生活觀察支持",
+  "寫出自己的想法，而非只整理資料",
+  "形成一個可以繼續探究的疑問",
+  "能自然銜接到下一節研究目的",
+];
+
+const guidingQuestions = [
+  "你說的這個現象，主要發生在哪些人身上？",
+  "有什麼資料可以證明這個現象確實存在？",
+  "這件事讓你最好奇、最想追問的是哪一點？",
+  "如果只能研究一件事，你會選擇什麼？",
+];
+
+export default function Home() {
+  const [chapter, setChapter] = useState(0);
+  const [answers, setAnswers] = useState(["", ""]);
+  const [saved, setSaved] = useState([false, false]);
+  const [showCollab, setShowCollab] = useState(false);
+  const [showCoach, setShowCoach] = useState(false);
+  const [checkStates, setCheckStates] = useState<string[][]>(() => [
+    coachChecks.map(() => "unset"),
+    coachChecks.map(() => "unset"),
+  ]);
+  const [coachNotes, setCoachNotes] = useState(["", ""]);
+
+  useEffect(() => {
+    const next = [0, 1].map((student) => localStorage.getItem(`practice-${chapters[chapter]}-${student}`) ?? (chapter === 0 ? localStorage.getItem(`practice-0-${student}`) : "") ?? "");
+    setAnswers(next);
+    setSaved([false, false]);
+  }, [chapter]);
+
+  function updateAnswer(student: number, value: string) {
+    setAnswers((current) => current.map((item, index) => (index === student ? value : item)));
+    setSaved((current) => current.map((item, index) => (index === student ? false : item)));
+  }
+
+  function saveAnswer(student: number) {
+    localStorage.setItem(`practice-${chapters[chapter]}-${student}`, answers[student]);
+    setSaved((current) => current.map((item, index) => (index === student ? true : item)));
+  }
+
+  function cycleCheck(student: number, item: number) {
+    const order = ["unset", "yes", "developing", "missing"];
+    setCheckStates((current) => current.map((studentStates, studentIndex) =>
+      studentIndex === student
+        ? studentStates.map((state, itemIndex) => itemIndex === item ? order[(order.indexOf(state) + 1) % order.length] : state)
+        : studentStates
+    ));
+  }
+
+  function addQuestion(student: number, question: string) {
+    setCoachNotes((current) => current.map((note, index) => index === student
+      ? `${note}${note ? "\n" : ""}• ${question}`
+      : note
+    ));
+  }
+
+  return (
+    <main>
+      <header className="topbar">
+        <a className="brand" href="#top" aria-label="小論文練習室首頁">
+          <span className="brandMark">研</span>
+          <span><strong>小論文練習室</strong><small>從想法，到有根據的論述</small></span>
+        </a>
+        <div className="headerActions">
+          <span className="localBadge"><i /> 本機練習模式</span>
+          <button className="collabButton" onClick={() => setShowCollab(true)}>
+            <strong>進入正式共編</strong>
+            <small>課程結束後開放</small>
+          </button>
+        </div>
+      </header>
+
+      <section className="hero" id="top">
+        <div>
+          <p className="eyebrow">CHAPTER PRACTICE · 章節練習</p>
+          <h1>同一題目，<em>各自練出</em><br />自己的論述。</h1>
+          <p className="lead">兩位選手先獨立思考、分別作答，再由指導老師帶領比較觀點、補足證據，為正式共編做好準備。</p>
+        </div>
+        <div className="progressCard">
+          <span>本次培訓進度</span>
+          <strong>{chapter + 1}<small> / {chapters.length} 章</small></strong>
+          <div className="progressTrack"><i style={{ width: `${((chapter + 1) / chapters.length) * 100}%` }} /></div>
+          <p>目前練習：{chapters[chapter]}</p>
+        </div>
+      </section>
+
+      <nav className="chapters" aria-label="選擇練習章節">
+        {chapters.map((item, index) => (
+          <button className={index === chapter ? "active" : ""} onClick={() => setChapter(index)} key={item}>
+            <span>{String(index + 1).padStart(2, "0")}</span>{item}
+          </button>
+        ))}
+      </nav>
+
+      <section className="promptCard">
+        <div className="promptNumber">{String(chapter + 1).padStart(2, "0")}</div>
+        <div>
+          <p className="eyebrow">TODAY'S WRITING PROMPT</p>
+          <h2>{prompts[chapter]?.question ?? `${chapters[chapter]}：請先寫出你認為最重要的核心內容`}</h2>
+          <p>{prompts[chapter]?.description ?? "先不要追求完美。請用自己的話寫下核心內容，再補上可查證的資料。"}</p>
+        </div>
+        <aside><strong>老師提醒</strong><p>{prompts[chapter]?.tip ?? "先完成論述骨架，再逐步補上證據與引用來源。"}</p></aside>
+      </section>
+
+      {chapter === 0 && (
+        <section className="introGuide">
+          <div className="guideHeading">
+            <p className="eyebrow">第壹章 · 緒論</p>
+            <h2>緒論不必長，讓思考順順地往下走。</h2>
+            <p>研究動機負責把問題帶進來，研究目的則把問題轉成這次研究要完成的任務。</p>
+          </div>
+          <div className="argumentFlow" aria-label="緒論寫作順序">
+            <div className="current"><span>第一段</span><strong>現象說明</strong><small>客觀發生了什麼？</small></div>
+            <b>→</b>
+            <div className="current"><span>第二段</span><strong>個人思考</strong><small>你發現什麼疑問？</small></div>
+            <b>→</b>
+            <div><span>銜接</span><strong>研究問題</strong><small>真正想知道什麼？</small></div>
+            <b>→</b>
+            <div className="current"><span>第二節</span><strong>研究目的</strong><small>這次要完成什麼？</small></div>
+          </div>
+        </section>
+      )}
+
+      <section className="workspace">
+        {["欣芸", "宥晴"].map((student, index) => (
+          <article className={`studentCard student${index}`} key={student}>
+            <header>
+              <div className="avatar">{index === 0 ? "蔡" : "嚴"}</div>
+              <div><p>{student}</p><span>學生獨立練習區</span></div>
+              <span className="wordCount">{answers[index].replace(/\s/g, "").length} 字</span>
+            </header>
+            <label htmlFor={`answer-${index}`}>{prompts[chapter]?.title ?? "我的初步想法"}</label>
+            <textarea id={`answer-${index}`} value={answers[index]} onChange={(event) => updateAnswer(index, event.target.value)} placeholder={chapter === 0 ? "第一段｜現象說明\n我觀察到……（先客觀描述現象）\n\n第二段｜我的想法或思考\n這讓我想到／好奇……（慢慢帶出研究問題）\n\n第二節｜研究目的\n（一）了解……\n（二）分析……" : "從這裡開始寫下你的想法……"} />
+            <footer>
+              <span>{saved[index] ? "✓ 已儲存在此裝置" : "尚未儲存"}</span>
+              <button onClick={() => saveAnswer(index)}>儲存練習</button>
+            </footer>
+          </article>
+        ))}
+      </section>
+
+      <section className="coachStrip">
+        <div><span>指導下一步</span><h2>兩位都完成後，一起找出論述中的「共同點」與「不同證據」。</h2></div>
+        <button onClick={() => setShowCoach(true)}>開啟教師引導單</button>
+      </section>
+
+      {showCoach && (
+        <div className="coachBackdrop" onClick={() => setShowCoach(false)} role="presentation">
+          <aside className="coachDrawer" role="dialog" aria-modal="true" aria-labelledby="coach-title" onClick={(event) => event.stopPropagation()}>
+            <header className="coachHeader">
+              <div>
+                <p className="eyebrow">TEACHER'S GUIDE · 教師引導單</p>
+                <h2 id="coach-title">先看見思考，再引導修改。</h2>
+                <p>{prompts[chapter]?.title ?? chapters[chapter]}・雙欄對照與引導紀錄</p>
+              </div>
+              <button aria-label="關閉教師引導單" onClick={() => setShowCoach(false)}>×</button>
+            </header>
+
+            <div className="coachLegend">
+              <span><i className="yes" /> 已經出現</span>
+              <span><i className="developing" /> 可以更清楚</span>
+              <span><i className="missing" /> 尚未出現</span>
+              <small>點擊檢核項目即可切換狀態</small>
+            </div>
+
+            <div className="coachStudents">
+              {["欣芸", "宥晴"].map((student, studentIndex) => (
+                <section className={`coachStudent coachStudent${studentIndex}`} key={student}>
+                  <div className="coachStudentTitle">
+                    <span className="avatar">{studentIndex === 0 ? "蔡" : "嚴"}</span>
+                    <div><strong>{student}</strong><small>學生原始練習內容</small></div>
+                  </div>
+                  <div className="answerPreview">{answers[studentIndex] || <span>這位學生還沒有輸入內容。</span>}</div>
+                  <h3>論述結構檢核</h3>
+                  <div className="checkList">
+                    {coachChecks.map((item, itemIndex) => (
+                      <button className={checkStates[studentIndex][itemIndex]} onClick={() => cycleCheck(studentIndex, itemIndex)} key={item}>
+                        <i>{checkStates[studentIndex][itemIndex] === "yes" ? "✓" : checkStates[studentIndex][itemIndex] === "developing" ? "△" : checkStates[studentIndex][itemIndex] === "missing" ? "—" : itemIndex + 1}</i>
+                        <span>{item}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <h3>選擇一句引導提問</h3>
+                  <div className="questionChips">
+                    {guidingQuestions.map((question) => <button onClick={() => addQuestion(studentIndex, question)} key={question}>＋ {question}</button>)}
+                  </div>
+                  <label htmlFor={`coach-note-${studentIndex}`}>給 {student} 的引導與回饋</label>
+                  <textarea id={`coach-note-${studentIndex}`} value={coachNotes[studentIndex]} onChange={(event) => setCoachNotes((current) => current.map((note, index) => index === studentIndex ? event.target.value : note))} placeholder="選擇上方問題，或直接寫下你想引導學生思考的方向……" />
+                </section>
+              ))}
+            </div>
+            <footer className="coachFooter">
+              <p><strong>教學原則：</strong>先用問題協助學生看見缺口，不直接替學生改寫答案。</p>
+              <button onClick={() => setShowCoach(false)}>儲存引導紀錄</button>
+            </footer>
+          </aside>
+        </div>
+      )}
+
+      {showCollab && (
+        <div className="modalBackdrop" onClick={() => setShowCollab(false)} role="presentation">
+          <section className="modal" role="dialog" aria-modal="true" aria-labelledby="collab-title" onClick={(event) => event.stopPropagation()}>
+            <button className="close" aria-label="關閉" onClick={() => setShowCollab(false)}>×</button>
+            <span className="modalIcon">共</span>
+            <p className="eyebrow">FORMAL COLLABORATION</p>
+            <h2 id="collab-title">正式共編空間，預留完成。</h2>
+            <p>等章節練習流程確認後，我們再一起決定內容如何整合、版本如何保留，以及老師如何回饋。</p>
+            <button onClick={() => setShowCollab(false)}>先回到分欄練習</button>
+          </section>
+        </div>
+      )}
+    </main>
+  );
+}
