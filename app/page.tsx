@@ -31,6 +31,7 @@ const guidingQuestions = [
 export default function Home() {
   const [chapter, setChapter] = useState(0);
   const [answers, setAnswers] = useState(["", ""]);
+  const [sections, setSections] = useState<string[][]>([["", "", ""], ["", "", ""]]);
   const [saved, setSaved] = useState([false, false]);
   const [showCollab, setShowCollab] = useState(false);
   const [showCoach, setShowCoach] = useState(false);
@@ -46,8 +47,9 @@ export default function Home() {
         cache: "no-store",
       });
       if (response.ok) {
-        const data = await response.json() as { answers: string[] };
+        const data = await response.json() as { answers: string[]; sections?: string[][] };
         setAnswers(data.answers);
+        setSections(data.sections ?? [["", "", ""], ["", "", ""]]);
         setSaved([true, true]);
       }
     }
@@ -59,11 +61,21 @@ export default function Home() {
     setSaved((current) => current.map((item, index) => (index === student ? false : item)));
   }
 
+  function updateSection(student: number, section: number, value: string) {
+    setSections((current) => {
+      const next = current.map((items) => [...items]);
+      next[student][section] = value;
+      setAnswers((answersNow) => answersNow.map((answer, index) => index === student ? next[student].filter(Boolean).join("\n\n") : answer));
+      return next;
+    });
+    setSaved((current) => current.map((item, index) => (index === student ? false : item)));
+  }
+
   async function saveAnswer(student: number) {
     const response = await fetch("/api/practice", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chapter: chapters[chapter], student, content: answers[student] }),
+      body: JSON.stringify({ chapter: chapters[chapter], student, content: answers[student], sections: chapter === 0 ? sections[student] : undefined }),
     });
     if (response.ok) setSaved((current) => current.map((item, index) => (index === student ? true : item)));
   }
@@ -159,10 +171,29 @@ export default function Home() {
               <div><p>{student}</p><span>學生獨立練習區</span></div>
               <span className="wordCount">{answers[index].replace(/\s/g, "").length} 字</span>
             </header>
-            <label htmlFor={`answer-${index}`}>{prompts[chapter]?.title ?? "我的初步想法"}</label>
-            <textarea id={`answer-${index}`} value={answers[index]} onChange={(event) => updateAnswer(index, event.target.value)} placeholder={chapter === 0 ? "第一段｜客觀描述現象\n• 這個現象發生在什麼情境、哪些人身上？\n• 實際出現了哪些可觀察的情況？\n• 有沒有資料、事件或例子可以證明？\n\n第二段｜個人的想法或思考\n• 從上述現象中，你注意到什麼問題？\n• 哪一部分讓你感到疑惑，值得進一步研究？\n• 你真正想釐清的問題是什麼？\n\n第二節｜研究目的\n• 每一項目的是否對應前面提出的研究問題？\n• 研究完成後，預計了解、分析或比較什麼？" : "先想清楚本章要回答的問題，再用自己的方式組織內容。"} />
+            {chapter === 0 ? (
+              <div className="sectionFields">
+                <section>
+                  <div className="sectionLabel"><span>01</span><div><strong>客觀描述現象</strong><small>先讓讀者理解實際發生了什麼</small></div></div>
+                  <ul><li>現象發生在什麼情境、哪些人身上？</li><li>有哪些可以觀察或查證的情況？</li><li>有沒有資料、事件或實例支持？</li></ul>
+                  <textarea aria-label={`${student}的客觀現象`} value={sections[index][0]} onChange={(event) => updateSection(index, 0, event.target.value)} placeholder="在此整理第一段內容" />
+                </section>
+                <section>
+                  <div className="sectionLabel"><span>02</span><div><strong>個人想法與研究問題</strong><small>從現象找出值得探究的疑問</small></div></div>
+                  <ul><li>你從上述現象注意到什麼問題？</li><li>哪一部分讓你感到疑惑？</li><li>真正想透過研究釐清什麼？</li></ul>
+                  <textarea aria-label={`${student}的個人想法`} value={sections[index][1]} onChange={(event) => updateSection(index, 1, event.target.value)} placeholder="在此整理第二段內容" />
+                </section>
+                <section>
+                  <div className="sectionLabel"><span>03</span><div><strong>研究目的</strong><small>承接問題，說明研究要完成的事</small></div></div>
+                  <ul><li>每項目的是否對應前面提出的問題？</li><li>研究完成後，預計了解、分析或比較什麼？</li></ul>
+                  <textarea aria-label={`${student}的研究目的`} value={sections[index][2]} onChange={(event) => updateSection(index, 2, event.target.value)} placeholder="在此整理研究目的" />
+                </section>
+              </div>
+            ) : (
+              <><label htmlFor={`answer-${index}`}>{prompts[chapter]?.title ?? "我的初步想法"}</label><textarea id={`answer-${index}`} value={answers[index]} onChange={(event) => updateAnswer(index, event.target.value)} placeholder="先想清楚本章要回答的問題，再用自己的方式組織內容。" /></>
+            )}
             <footer>
-              <span>{saved[index] ? "✓ 已同步到雲端" : "尚未儲存"}</span>
+              <span>{saved[index] ? "✓ 已整併並同步到雲端" : chapter === 0 ? "儲存時會自動整併三區內容" : "尚未儲存"}</span>
               <button onClick={() => saveAnswer(index)}>儲存練習</button>
             </footer>
           </article>

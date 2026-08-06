@@ -65,6 +65,11 @@ main { min-height:100vh; background-image:radial-gradient(#315b4b19 1px,transpar
 .studentCard textarea { display:block; width:calc(100% - 42px); min-height:280px; margin:0 21px; padding:15px; resize:vertical; border:1px solid #deddd7; border-radius:10px; outline:none; line-height:1.8; background:#fefdf9; }
 .studentCard textarea:focus { border-color:var(--green); box-shadow:0 0 0 3px #285f4b18; }
 .studentCard textarea::placeholder { color:#a3aaa6; }
+.sectionFields { padding:8px 21px 0; display:grid; gap:15px; }
+.sectionFields>section { padding:15px; background:#fbfaf6; border:1px solid #e1ded5; border-radius:11px; }
+.sectionLabel { display:flex; align-items:center; gap:10px; }.sectionLabel>span{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:var(--green);color:white;font:700 11px serif}.student1 .sectionLabel>span{background:var(--orange)}.sectionLabel strong,.sectionLabel small{display:block}.sectionLabel strong{font-size:13px}.sectionLabel small{margin-top:2px;color:#858e8a;font-size:10px}
+.sectionFields ul { margin:10px 0 11px; padding-left:19px; color:#69736f; font-size:11px; line-height:1.7; }
+.sectionFields textarea { width:100%; min-height:105px; margin:0; background:white; }
 .studentCard footer { display:flex; justify-content:space-between; align-items:center; padding:15px 21px 20px; color:#87908c; font-size:12px; }
 .studentCard footer button,.coachStrip button,.modal>button:last-child { border:0; border-radius:8px; padding:10px 15px; background:var(--green); color:white; font-weight:700; }
 .student1 footer button { background:var(--orange); }
