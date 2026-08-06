@@ -196,6 +196,15 @@ export default function Home() {
               <span>{saved[index] ? "✓ 已整併並同步到雲端" : chapter === 0 ? "儲存時會自動整併三區內容" : "尚未儲存"}</span>
               <button onClick={() => saveAnswer(index)}>儲存練習</button>
             </footer>
+            {chapter === 0 && (
+              <section className="articlePreview">
+                <div className="articlePreviewTitle">
+                  <div><span>MERGED ARTICLE</span><strong>完整文章預覽</strong></div>
+                  <small>{answers[index].replace(/\s/g, "").length} 字</small>
+                </div>
+                {answers[index] ? <div className="articleBody">{answers[index]}</div> : <p>完成上方分區後，整併的文章會顯示在這裡。</p>}
+              </section>
+            )}
           </article>
         ))}
       </section>
