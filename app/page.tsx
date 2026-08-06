@@ -8,8 +8,8 @@ const prompts = [
   {
     title: "第一節｜研究動機",
     question: "用兩段文字，說清楚你為什麼想研究這個問題",
-    description: "篇幅不用多，重點是讓讀者從客觀現象走進你的觀察與疑問。研究問題先在第二段自然浮現，再交給下一節承接。",
-    tip: "第一段說現象，第二段寫你的想法。避免塞入太多背景資料，也不用急著回答問題。",
+    description: "篇幅不用多。先讓沒有接觸過題目的讀者理解現象，再說明你從中注意到什麼值得研究的問題。",
+    tip: "客觀描述是交代可被觀察或查證的情況，不加入個人好惡與結論；個人的疑問與思考留到第二段。",
   },
 ];
 
@@ -160,7 +160,7 @@ export default function Home() {
               <span className="wordCount">{answers[index].replace(/\s/g, "").length} 字</span>
             </header>
             <label htmlFor={`answer-${index}`}>{prompts[chapter]?.title ?? "我的初步想法"}</label>
-            <textarea id={`answer-${index}`} value={answers[index]} onChange={(event) => updateAnswer(index, event.target.value)} placeholder={chapter === 0 ? "第一段｜現象說明\n我觀察到……（先客觀描述現象）\n\n第二段｜我的想法或思考\n這讓我想到／好奇……（慢慢帶出研究問題）\n\n第二節｜研究目的\n（一）了解……\n（二）分析……" : "從這裡開始寫下你的想法……"} />
+            <textarea id={`answer-${index}`} value={answers[index]} onChange={(event) => updateAnswer(index, event.target.value)} placeholder={chapter === 0 ? "第一段｜客觀描述現象\n• 這個現象發生在什麼情境、哪些人身上？\n• 實際出現了哪些可觀察的情況？\n• 有沒有資料、事件或例子可以證明？\n\n第二段｜個人的想法或思考\n• 從上述現象中，你注意到什麼問題？\n• 哪一部分讓你感到疑惑，值得進一步研究？\n• 你真正想釐清的問題是什麼？\n\n第二節｜研究目的\n• 每一項目的是否對應前面提出的研究問題？\n• 研究完成後，預計了解、分析或比較什麼？" : "先想清楚本章要回答的問題，再用自己的方式組織內容。"} />
             <footer>
               <span>{saved[index] ? "✓ 已同步到雲端" : "尚未儲存"}</span>
               <button onClick={() => saveAnswer(index)}>儲存練習</button>
