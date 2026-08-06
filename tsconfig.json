@@ -36,6 +36,7 @@
     "db",
     "drizzle",
     "examples",
+    "functions",
     "worker",
     "app/chatgpt-auth.ts"
   ]

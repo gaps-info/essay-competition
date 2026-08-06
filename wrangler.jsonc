@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "essay-competition",
+  "pages_build_output_dir": "out",
+  "compatibility_date": "2026-08-06",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "essay-competition-db",
+      "database_id": "688feac1-ae62-47e0-9372-54c31a08b557"
+    }
+  ]
+}

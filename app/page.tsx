@@ -41,9 +41,17 @@ export default function Home() {
   const [coachNotes, setCoachNotes] = useState(["", ""]);
 
   useEffect(() => {
-    const next = [0, 1].map((student) => localStorage.getItem(`practice-${chapters[chapter]}-${student}`) ?? (chapter === 0 ? localStorage.getItem(`practice-0-${student}`) : "") ?? "");
-    setAnswers(next);
-    setSaved([false, false]);
+    async function loadAnswers() {
+      const response = await fetch(`/api/practice?chapter=${encodeURIComponent(chapters[chapter])}`, {
+        cache: "no-store",
+      });
+      if (response.ok) {
+        const data = await response.json() as { answers: string[] };
+        setAnswers(data.answers);
+        setSaved([true, true]);
+      }
+    }
+    loadAnswers();
   }, [chapter]);
 
   function updateAnswer(student: number, value: string) {
@@ -51,9 +59,13 @@ export default function Home() {
     setSaved((current) => current.map((item, index) => (index === student ? false : item)));
   }
 
-  function saveAnswer(student: number) {
-    localStorage.setItem(`practice-${chapters[chapter]}-${student}`, answers[student]);
-    setSaved((current) => current.map((item, index) => (index === student ? true : item)));
+  async function saveAnswer(student: number) {
+    const response = await fetch("/api/practice", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chapter: chapters[chapter], student, content: answers[student] }),
+    });
+    if (response.ok) setSaved((current) => current.map((item, index) => (index === student ? true : item)));
   }
 
   function cycleCheck(student: number, item: number) {
@@ -80,7 +92,7 @@ export default function Home() {
           <span><strong>小論文練習室</strong><small>從想法，到有根據的論述</small></span>
         </a>
         <div className="headerActions">
-          <span className="localBadge"><i /> 本機練習模式</span>
+          <span className="localBadge"><i /> 雲端同步模式</span>
           <button className="collabButton" onClick={() => setShowCollab(true)}>
             <strong>進入正式共編</strong>
             <small>課程結束後開放</small>
@@ -150,7 +162,7 @@ export default function Home() {
             <label htmlFor={`answer-${index}`}>{prompts[chapter]?.title ?? "我的初步想法"}</label>
             <textarea id={`answer-${index}`} value={answers[index]} onChange={(event) => updateAnswer(index, event.target.value)} placeholder={chapter === 0 ? "第一段｜現象說明\n我觀察到……（先客觀描述現象）\n\n第二段｜我的想法或思考\n這讓我想到／好奇……（慢慢帶出研究問題）\n\n第二節｜研究目的\n（一）了解……\n（二）分析……" : "從這裡開始寫下你的想法……"} />
             <footer>
-              <span>{saved[index] ? "✓ 已儲存在此裝置" : "尚未儲存"}</span>
+              <span>{saved[index] ? "✓ 已同步到雲端" : "尚未儲存"}</span>
               <button onClick={() => saveAnswer(index)}>儲存練習</button>
             </footer>
           </article>
