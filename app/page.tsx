@@ -11,7 +11,32 @@ const prompts = [
     description: "篇幅不用多。先讓沒有接觸過題目的讀者理解現象，再說明你從中注意到什麼值得研究的問題。",
     tip: "客觀描述是交代可被觀察或查證的情況，不加入個人好惡與結論；個人的疑問與思考留到第二段。",
   },
+  {
+    title: "第貳章｜文獻探討",
+    question: "把查到的資料，整理成能回答研究問題的內容",
+    description: "一次完成一張任務卡。先記錄資料來源，再用自己的話說明重點，不需要照著原文抄寫。",
+    tip: "資料不必多，重點是看懂、說清楚，並確認內容真的和食用油研究有關。",
+  },
 ];
+
+const literatureTasks = [
+  { number: "01", title: "認識食用油", subtitle: "先了解生活中常見的油品", questions: ["常見的食用油有哪些？", "它們分別使用什麼原料？", "生活中通常怎麼使用？"] },
+  { number: "02", title: "食用油怎麼製造", subtitle: "整理從原料變成油品的過程", questions: ["使用什麼原料？", "大約經過哪些製作步驟？", "不同製造方法有什麼明顯差異？"] },
+  { number: "03", title: "食用油與健康", subtitle: "了解成分、使用方式與健康的關係", questions: ["資料提到哪些成分？", "它說的是適量食用，還是完全不能食用？", "保存、加熱或重複使用可能造成什麼影響？"] },
+  { number: "04", title: "消費者應該知道什麼", subtitle: "為後續的食安認知問卷做準備", questions: ["購買時可以注意哪些標示？", "保存和使用油品時應注意什麼？", "哪些知識適合放進消費者問卷？"] },
+];
+
+function mergeChapterSections(chapter: number, values: string[]) {
+  if (chapter === 1) {
+    return literatureTasks.map((task, index) => {
+      const source = values[index * 2]?.trim();
+      const content = values[index * 2 + 1]?.trim();
+      if (!content) return "";
+      return `${task.title}\n${content}${source ? `\n（資料來源：${source}）` : ""}`;
+    }).filter(Boolean).join("\n\n");
+  }
+  return values.filter((value) => value.trim()).join("\n\n");
+}
 
 const coachChecks = [
   "說明了具體、可理解的現象",
@@ -65,7 +90,7 @@ export default function Home() {
     setSections((current) => {
       const next = current.map((items) => [...items]);
       next[student][section] = value;
-      setAnswers((answersNow) => answersNow.map((answer, index) => index === student ? next[student].filter(Boolean).join("\n\n") : answer));
+      setAnswers((answersNow) => answersNow.map((answer, index) => index === student ? mergeChapterSections(chapter, next[student]) : answer));
       return next;
     });
     setSaved((current) => current.map((item, index) => (index === student ? false : item)));
@@ -75,7 +100,7 @@ export default function Home() {
     const response = await fetch("/api/practice", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chapter: chapters[chapter], student, content: answers[student], sections: chapter === 0 ? sections[student] : undefined }),
+      body: JSON.stringify({ chapter: chapters[chapter], student, content: answers[student], sections: chapter <= 1 ? sections[student] : undefined }),
     });
     if (response.ok) setSaved((current) => current.map((item, index) => (index === student ? true : item)));
   }
@@ -189,17 +214,30 @@ export default function Home() {
                   <textarea aria-label={`${student}的研究目的`} value={sections[index][2]} onChange={(event) => updateSection(index, 2, event.target.value)} placeholder="在此整理研究目的" />
                 </section>
               </div>
+            ) : chapter === 1 ? (
+              <div className="sectionFields literatureFields">
+                {literatureTasks.map((task, taskIndex) => (
+                  <section key={task.title}>
+                    <div className="sectionLabel"><span>{task.number}</span><div><strong>{task.title}</strong><small>{task.subtitle}</small></div></div>
+                    <ul>{task.questions.map((question) => <li key={question}>{question}</li>)}</ul>
+                    <label htmlFor={`source-${index}-${taskIndex}`}>資料來源</label>
+                    <input id={`source-${index}-${taskIndex}`} value={sections[index]?.[taskIndex * 2] ?? ""} onChange={(event) => updateSection(index, taskIndex * 2, event.target.value)} placeholder="資料標題、網站或書籍名稱" />
+                    <label htmlFor={`literature-${index}-${taskIndex}`}>用自己的話整理</label>
+                    <textarea id={`literature-${index}-${taskIndex}`} value={sections[index]?.[taskIndex * 2 + 1] ?? ""} onChange={(event) => updateSection(index, taskIndex * 2 + 1, event.target.value)} placeholder="看懂資料後，整理出和研究問題有關的重點" />
+                  </section>
+                ))}
+              </div>
             ) : (
               <><label htmlFor={`answer-${index}`}>{prompts[chapter]?.title ?? "我的初步想法"}</label><textarea id={`answer-${index}`} value={answers[index]} onChange={(event) => updateAnswer(index, event.target.value)} placeholder="先想清楚本章要回答的問題，再用自己的方式組織內容。" /></>
             )}
             <footer>
-              <span>{saved[index] ? "✓ 已整併並同步到雲端" : chapter === 0 ? "儲存時會自動整併三區內容" : "尚未儲存"}</span>
+              <span>{saved[index] ? "✓ 已整併並同步到雲端" : chapter <= 1 ? "儲存時會自動整併各區內容" : "尚未儲存"}</span>
               <button onClick={() => saveAnswer(index)}>儲存練習</button>
             </footer>
-            {chapter === 0 && (
+            {chapter <= 1 && (
               <section className="articlePreview">
                 <div className="articlePreviewTitle">
-                  <div><span>MERGED ARTICLE</span><strong>完整文章預覽</strong></div>
+                  <div><span>MERGED ARTICLE</span><strong>{chapter === 1 ? "完整文獻探討預覽" : "完整文章預覽"}</strong></div>
                   <small>{answers[index].replace(/\s/g, "").length} 字</small>
                 </div>
                 {answers[index] ? <div className="articleBody">{answers[index]}</div> : <p>完成上方分區後，整併的文章會顯示在這裡。</p>}
