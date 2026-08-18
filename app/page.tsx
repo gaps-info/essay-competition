@@ -38,6 +38,7 @@ const citationPracticeTexts = [
     title: "植物油如何取得與精煉",
     sourceTitle: "正確選用植物油，安心享用無負擔！",
     unit: "衛生福利部食品藥物管理署",
+    citationName: "食品藥物管理署",
     year: "2025",
     date: "2025年3月28日",
     url: "https://www.fda.gov.tw/tc/PublishOtherEpaperContent.aspx?id=1559&r=1428801689&tid=5140",
@@ -48,6 +49,7 @@ const citationPracticeTexts = [
     title: "為什麼不宜反覆使用炸油",
     sourceTitle: "油品混充及違法添加銅葉綠素事件Q&A",
     unit: "衛生福利部食品藥物管理署",
+    citationName: "食品藥物管理署",
     year: "2013",
     date: "2013年10月22日",
     url: "https://www.fda.gov.tw/tc/sitecontent.aspx?sid=3694",
@@ -58,6 +60,7 @@ const citationPracticeTexts = [
     title: "銅葉綠素油品事件",
     sourceTitle: "食品消費權益事件中預防措施之妥適性——以銅葉綠素事件為例",
     unit: "黃士洋、吳宗熹、潘志寬",
+    citationName: "黃士洋等人",
     year: "2014",
     date: "2014年",
     url: "https://www.fda.gov.tw/tc/includes/GetFile.ashx?cid=27828&id=f636725224735036796",
@@ -112,6 +115,10 @@ export default function Home() {
   const [saved, setSaved] = useState([false, false]);
   const [showCollab, setShowCollab] = useState(false);
   const [showCoach, setShowCoach] = useState(false);
+  const [citationStyles, setCitationStyles] = useState<string[][]>(() => [
+    citationPracticeTexts.map(() => "narrative"),
+    citationPracticeTexts.map(() => "narrative"),
+  ]);
   const [checkStates, setCheckStates] = useState<string[][]>(() => [
     coachChecks.map(() => "unset"),
     coachChecks.map(() => "unset"),
@@ -298,8 +305,16 @@ export default function Home() {
                       <label htmlFor={`rewrite-${index}-${practiceIndex}`}>② 不看原文，用自己的話改寫</label>
                       <textarea id={`rewrite-${index}-${practiceIndex}`} value={sections[index]?.[field + 1] ?? ""} onChange={(event) => updateSection(index, field + 1, event.target.value)} placeholder="想像你正在向同學說明，不要照抄原句。" />
                       <label htmlFor={`intext-${index}-${practiceIndex}`}>③ 放進文章並標示來源</label>
-                      <small className="formatHint">格式提示：作者或發布單位（年份）指出，……</small>
-                      <textarea id={`intext-${index}-${practiceIndex}`} value={sections[index]?.[field + 2] ?? ""} onChange={(event) => updateSection(index, field + 2, event.target.value)} placeholder={`${practice.unit}（${practice.year}）指出，……`} />
+                      <div className="citationStylePicker" aria-label="選擇引用方式">
+                        <button type="button" className={citationStyles[index][practiceIndex] === "narrative" ? "active" : ""} onClick={() => setCitationStyles((current) => current.map((styles, studentIndex) => studentIndex === index ? styles.map((style, textIndex) => textIndex === practiceIndex ? "narrative" : style) : styles))}>
+                          <strong>敘述式引用</strong><small>{practice.citationName}（{practice.year}）指出，……</small>
+                        </button>
+                        <button type="button" className={citationStyles[index][practiceIndex] === "parenthetical" ? "active" : ""} onClick={() => setCitationStyles((current) => current.map((styles, studentIndex) => studentIndex === index ? styles.map((style, textIndex) => textIndex === practiceIndex ? "parenthetical" : style) : styles))}>
+                          <strong>括號式引用</strong><small>……（{practice.citationName}，{practice.year}）。</small>
+                        </button>
+                      </div>
+                      <small className="formatHint">兩種寫法都正確，選一種完成這次練習。</small>
+                      <textarea id={`intext-${index}-${practiceIndex}`} value={sections[index]?.[field + 2] ?? ""} onChange={(event) => updateSection(index, field + 2, event.target.value)} placeholder={citationStyles[index][practiceIndex] === "narrative" ? `${practice.citationName}（${practice.year}）指出，……` : `先寫自己的改寫內容（${practice.citationName}，${practice.year}）。`} />
                       <label htmlFor={`reference-${index}-${practiceIndex}`}>④ 完成參考資料</label>
                       <small className="formatHint">格式提示：作者或發布單位（年份）。文章名稱。網址（查閱日期：＿＿）</small>
                       <textarea id={`reference-${index}-${practiceIndex}`} value={sections[index]?.[field + 3] ?? ""} onChange={(event) => updateSection(index, field + 3, event.target.value)} placeholder="依照上方資料，完成一筆參考資料。" />
