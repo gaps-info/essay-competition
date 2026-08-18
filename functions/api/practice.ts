@@ -20,7 +20,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
   if (request.method === "GET") {
     const chapter = new URL(request.url).searchParams.get("chapter") ?? "";
     const answers = ["", ""];
-    const sectionCount = chapter === "文獻探討進階" ? 8 : chapter === "文獻探討" ? 8 : 3;
+    const sectionCount = chapter === "文獻探討進階" ? 12 : chapter === "文獻探討" ? 8 : 3;
     const sections = [Array(sectionCount).fill(""), Array(sectionCount).fill("")];
     for (const student of students) {
       const row = await env.DB.prepare("SELECT content FROM practices WHERE student = ? AND chapter = ?").bind(student, chapter).first<{ content: string }>();
@@ -30,7 +30,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
         try {
           const parsed = JSON.parse(stored) as { article?: string; sections?: string[] };
           answers[index] = parsed.article ?? "";
-          sections[index] = parsed.sections?.slice(0, sectionCount) ?? Array(sectionCount).fill("");
+          sections[index] = [...(parsed.sections?.slice(0, sectionCount) ?? []), ...Array(sectionCount).fill("")].slice(0, sectionCount);
         } catch { answers[index] = stored; sections[index][0] = stored; }
       } else {
         answers[index] = stored;
@@ -44,7 +44,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
     const body = await request.json() as { student?: number; chapter?: string; content?: string; sections?: string[] };
     const student = students[body.student ?? -1];
     if (!student) return Response.json({ error: "invalid student" }, { status: 400 });
-    const maxSections = body.chapter === "文獻探討進階" ? 8 : body.chapter === "文獻探討" ? 8 : 3;
+    const maxSections = body.chapter === "文獻探討進階" ? 12 : body.chapter === "文獻探討" ? 8 : 3;
     const cleanSections = body.sections?.slice(0, maxSections).map((item) => item.trim()) ?? [];
     let article = body.content ?? "";
     if (body.chapter === "研究動機" && cleanSections.length) article = cleanSections.filter(Boolean).join("\n\n");
@@ -57,7 +57,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
       }).filter(Boolean).join("\n\n");
     }
     if (body.chapter === "文獻探討進階" && cleanSections.length) {
-      const titles = ["植物油如何取得與精煉", "為什麼不宜反覆使用炸油"];
+      const titles = ["植物油如何取得與精煉", "為什麼不宜反覆使用炸油", "混充油與標示不實"];
       article = titles.map((title, index) => {
         const [important, rewrite, inText, reference] = cleanSections.slice(index * 4, index * 4 + 4);
         if (![important, rewrite, inText, reference].some(Boolean)) return "";

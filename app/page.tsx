@@ -53,6 +53,16 @@ const citationPracticeTexts = [
     url: "https://www.fda.gov.tw/tc/sitecontent.aspx?sid=3694",
     text: "油脂反覆加熱使用時，氧化物會逐漸累積，油品的發煙點也可能下降。當炸油出現顏色變深、變得黏稠、容易冒煙或產生大量泡沫等情況，就表示油品品質可能已經改變，不適合繼續使用。",
   },
+  {
+    number: "03",
+    title: "混充油與標示不實",
+    sourceTitle: "油品混充及違法添加銅葉綠素事件Q&A",
+    unit: "衛生福利部食品藥物管理署",
+    year: "2013",
+    date: "2013年10月22日",
+    url: "https://www.fda.gov.tw/tc/sitecontent.aspx?sid=3694",
+    text: "臺灣曾發生食用油混充與標示不實事件。有些產品標示為單一種類的油，實際上卻混入其他較便宜的油；也有業者為了調整油品顏色，違法加入不能用在食用油中的銅葉綠素。當標示與真正成分不一致，消費者就無法從包裝正確判斷自己買到什麼油。",
+  },
 ];
 
 function mergeChapterSections(chapter: number, values: string[]) {
