@@ -19,9 +19,9 @@ const prompts = [
   },
   {
     title: "文獻探討｜進階練習",
-    question: "從 AI 提供的線索出發，找到可以查證的原始資料",
-    description: "AI 可以協助找方向，但不能成為引用來源。請完成查證、理解、改寫與連結研究問題四個步驟。",
-    tip: "判斷標準：別人能找到你的原始資料，而且你能不用看原文，用自己的話解釋內容。",
+    question: "閱讀老師提供的文本，練習改寫與引用",
+    description: "先找出重要內容，再用自己的話改寫，最後標示資料來源。AI 可以協助理解，但不能當作引用來源。",
+    tip: "引用不是整段照抄。讀懂後先關掉原文，再用自己的話說明，並讓讀者知道資料來自哪裡。",
   },
 ];
 
@@ -30,6 +30,29 @@ const literatureTasks = [
   { number: "02", title: "食用油怎麼製造", subtitle: "整理從原料變成油品的過程", questions: ["使用什麼原料？", "大約經過哪些製作步驟？", "不同製造方法有什麼明顯差異？"] },
   { number: "03", title: "食用油與健康", subtitle: "了解成分、使用方式與健康的關係", questions: ["資料提到哪些成分？", "它說的是適量食用，還是完全不能食用？", "保存、加熱或重複使用可能造成什麼影響？"] },
   { number: "04", title: "消費者應該知道什麼", subtitle: "為後續的食安認知問卷做準備", questions: ["購買時可以注意哪些標示？", "保存和使用油品時應注意什麼？", "哪些知識適合放進消費者問卷？"] },
+];
+
+const citationPracticeTexts = [
+  {
+    number: "01",
+    title: "植物油如何取得與精煉",
+    sourceTitle: "正確選用植物油，安心享用無負擔！",
+    unit: "衛生福利部食品藥物管理署",
+    year: "2025",
+    date: "2025年3月28日",
+    url: "https://www.fda.gov.tw/tc/PublishOtherEpaperContent.aspx?id=1559&r=1428801689&tid=5140",
+    text: "植物油可利用壓榨法或溶劑萃取法取得。油脂含量較高的橄欖、芝麻、花生常使用壓榨法；黃豆等油脂含量較低的原料，則可能使用溶劑萃取。取得油脂後，還可經過脫膠、脫酸、脫色及脫臭等精煉程序，去除雜質並提高油品的穩定性。",
+  },
+  {
+    number: "02",
+    title: "為什麼不宜反覆使用炸油",
+    sourceTitle: "油品混充及違法添加銅葉綠素事件Q&A",
+    unit: "衛生福利部食品藥物管理署",
+    year: "2013",
+    date: "2013年10月22日",
+    url: "https://www.fda.gov.tw/tc/sitecontent.aspx?sid=3694",
+    text: "油脂反覆加熱使用時，氧化物會逐漸累積，油品的發煙點也可能下降。當炸油出現顏色變深、變得黏稠、容易冒煙或產生大量泡沫等情況，就表示油品品質可能已經改變，不適合繼續使用。",
+  },
 ];
 
 function mergeChapterSections(chapter: number, values: string[]) {
@@ -42,15 +65,17 @@ function mergeChapterSections(chapter: number, values: string[]) {
     }).filter(Boolean).join("\n\n");
   }
   if (chapter === 2) {
-    const [aiClue, keywords, sourceTitle, sourceUnit, sourceUrl, originalPoint, ownWords, researchLink, verifyNext] = values.map((value) => value?.trim() ?? "");
-    return [
-      aiClue && `準備查證的說法\n${aiClue}${keywords ? `\n查證關鍵字：${keywords}` : ""}`,
-      sourceTitle && `找到的原始資料\n${sourceTitle}${sourceUnit ? `／${sourceUnit}` : ""}${sourceUrl ? `\n${sourceUrl}` : ""}`,
-      originalPoint && `原文重點\n${originalPoint}`,
-      ownWords && `用自己的話說明\n${ownWords}`,
-      researchLink && `與研究問題的關係\n${researchLink}`,
-      verifyNext && `還需要查證\n${verifyNext}`,
-    ].filter(Boolean).join("\n\n");
+    return citationPracticeTexts.map((practice, index) => {
+      const [important, rewrite, inText, reference] = values.slice(index * 4, index * 4 + 4).map((value) => value?.trim() ?? "");
+      if (![important, rewrite, inText, reference].some(Boolean)) return "";
+      return [
+        `練習文本${practice.number}｜${practice.title}`,
+        important && `我選出的重要內容\n${important}`,
+        rewrite && `用自己的話改寫\n${rewrite}`,
+        inText && `正文引用練習\n${inText}`,
+        reference && `參考資料\n${reference}`,
+      ].filter(Boolean).join("\n");
+    }).filter(Boolean).join("\n\n");
   }
   return values.filter((value) => value.trim()).join("\n\n");
 }
@@ -246,40 +271,31 @@ export default function Home() {
               </div>
             ) : chapter === 2 ? (
               <div className="sectionFields literatureFields advancedFields">
-                <section>
-                  <div className="sectionLabel"><span>01</span><div><strong>AI 只能提供線索</strong><small>先決定哪一個說法需要查證</small></div></div>
-                  <ul><li>AI 或搜尋摘要告訴你什麼？</li><li>這個說法有沒有清楚的原始來源？</li><li>可以使用哪些關鍵字尋找原文？</li></ul>
-                  <label htmlFor={`advanced-clue-${index}`}>準備查證的說法</label>
-                  <textarea id={`advanced-clue-${index}`} value={sections[index]?.[0] ?? ""} onChange={(event) => updateSection(index, 0, event.target.value)} placeholder="記錄想查證的內容，不把它當成引用資料" />
-                  <label htmlFor={`advanced-keywords-${index}`}>查證關鍵字</label>
-                  <input id={`advanced-keywords-${index}`} value={sections[index]?.[1] ?? ""} onChange={(event) => updateSection(index, 1, event.target.value)} placeholder="輸入兩到四個重要詞語" />
-                </section>
-                <section>
-                  <div className="sectionLabel"><span>02</span><div><strong>找到原始資料</strong><small>資料必須能被其他人找到與核對</small></div></div>
-                  <ul><li>文章有清楚的標題嗎？</li><li>是政府、學校、醫院或研究機構發布的嗎？</li><li>網址能直接開啟原始文章嗎？</li></ul>
-                  <label htmlFor={`advanced-title-${index}`}>文章標題</label>
-                  <input id={`advanced-title-${index}`} value={sections[index]?.[2] ?? ""} onChange={(event) => updateSection(index, 2, event.target.value)} placeholder="填寫原始文章的完整名稱" />
-                  <label htmlFor={`advanced-unit-${index}`}>作者或發布單位</label>
-                  <input id={`advanced-unit-${index}`} value={sections[index]?.[3] ?? ""} onChange={(event) => updateSection(index, 3, event.target.value)} placeholder="例如：衛生福利部食品藥物管理署" />
-                  <label htmlFor={`advanced-url-${index}`}>原始網址</label>
-                  <input id={`advanced-url-${index}`} value={sections[index]?.[4] ?? ""} onChange={(event) => updateSection(index, 4, event.target.value)} placeholder="貼上原始文章網址，不貼 AI 搜尋頁" />
-                </section>
-                <section>
-                  <div className="sectionLabel"><span>03</span><div><strong>看懂後再重寫</strong><small>先理解，再關掉原文用自己的話說</small></div></div>
-                  <ul><li>原文真正說明的重點是什麼？</li><li>有沒有把「可能」誤寫成「一定」？</li><li>你能向同學口頭解釋嗎？</li></ul>
-                  <label htmlFor={`advanced-point-${index}`}>原文真正說明的重點</label>
-                  <textarea id={`advanced-point-${index}`} value={sections[index]?.[5] ?? ""} onChange={(event) => updateSection(index, 5, event.target.value)} placeholder="閱讀時先整理重點" />
-                  <label htmlFor={`advanced-own-${index}`}>關掉原文後，用自己的話說明</label>
-                  <textarea id={`advanced-own-${index}`} value={sections[index]?.[6] ?? ""} onChange={(event) => updateSection(index, 6, event.target.value)} placeholder="想像你正在向同學解釋" />
-                </section>
-                <section>
-                  <div className="sectionLabel"><span>04</span><div><strong>連回研究問題</strong><small>確認這份資料真的有助於研究</small></div></div>
-                  <ul><li>它回答哪一個食用油研究問題？</li><li>它能放進文獻探討的哪個主題？</li><li>還有哪些說法需要繼續查證？</li></ul>
-                  <label htmlFor={`advanced-link-${index}`}>與研究問題的關係</label>
-                  <textarea id={`advanced-link-${index}`} value={sections[index]?.[7] ?? ""} onChange={(event) => updateSection(index, 7, event.target.value)} placeholder="說明這份資料可以幫助研究了解什麼" />
-                  <label htmlFor={`advanced-next-${index}`}>還需要查證的內容</label>
-                  <textarea id={`advanced-next-${index}`} value={sections[index]?.[8] ?? ""} onChange={(event) => updateSection(index, 8, event.target.value)} placeholder="沒有也可以留白" />
-                </section>
+                {citationPracticeTexts.map((practice, practiceIndex) => {
+                  const field = practiceIndex * 4;
+                  return (
+                    <section key={practice.title}>
+                      <div className="sectionLabel"><span>{practice.number}</span><div><strong>{practice.title}</strong><small>閱讀文本後，完成四個小步驟</small></div></div>
+                      <div className="practiceText">
+                        <strong>老師提供的文本</strong>
+                        <p>{practice.text}</p>
+                        <small>資料改寫自：{practice.unit}（{practice.date}），〈{practice.sourceTitle}〉</small>
+                        <a href={practice.url} target="_blank" rel="noreferrer">查看原始資料</a>
+                      </div>
+                      <p className="citationReminder"><strong>先記住：</strong>AI 不是作者，也不是資料來源。可以請 AI 幫忙解釋，但文章中要引用原本發布資料的單位。</p>
+                      <label htmlFor={`important-${index}-${practiceIndex}`}>① 我選出的重要內容</label>
+                      <textarea id={`important-${index}-${practiceIndex}`} value={sections[index]?.[field] ?? ""} onChange={(event) => updateSection(index, field, event.target.value)} placeholder="這段文本最重要的是什麼？先用短句記下來。" />
+                      <label htmlFor={`rewrite-${index}-${practiceIndex}`}>② 不看原文，用自己的話改寫</label>
+                      <textarea id={`rewrite-${index}-${practiceIndex}`} value={sections[index]?.[field + 1] ?? ""} onChange={(event) => updateSection(index, field + 1, event.target.value)} placeholder="想像你正在向同學說明，不要照抄原句。" />
+                      <label htmlFor={`intext-${index}-${practiceIndex}`}>③ 放進文章並標示來源</label>
+                      <small className="formatHint">格式提示：發布單位（年份）指出，……</small>
+                      <textarea id={`intext-${index}-${practiceIndex}`} value={sections[index]?.[field + 2] ?? ""} onChange={(event) => updateSection(index, field + 2, event.target.value)} placeholder={`${practice.unit}（${practice.year}）指出，……`} />
+                      <label htmlFor={`reference-${index}-${practiceIndex}`}>④ 完成參考資料</label>
+                      <small className="formatHint">格式提示：發布單位（年份）。文章名稱。網址（查閱日期：＿＿）</small>
+                      <textarea id={`reference-${index}-${practiceIndex}`} value={sections[index]?.[field + 3] ?? ""} onChange={(event) => updateSection(index, field + 3, event.target.value)} placeholder="依照上方資料，完成一筆參考資料。" />
+                    </section>
+                  );
+                })}
               </div>
             ) : (
               <><label htmlFor={`answer-${index}`}>{prompts[chapter]?.title ?? "我的初步想法"}</label><textarea id={`answer-${index}`} value={answers[index]} onChange={(event) => updateAnswer(index, event.target.value)} placeholder="先想清楚本章要回答的問題，再用自己的方式組織內容。" /></>

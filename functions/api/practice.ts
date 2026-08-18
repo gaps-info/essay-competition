@@ -20,7 +20,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
   if (request.method === "GET") {
     const chapter = new URL(request.url).searchParams.get("chapter") ?? "";
     const answers = ["", ""];
-    const sectionCount = chapter === "文獻探討進階" ? 9 : chapter === "文獻探討" ? 8 : 3;
+    const sectionCount = chapter === "文獻探討進階" ? 8 : chapter === "文獻探討" ? 8 : 3;
     const sections = [Array(sectionCount).fill(""), Array(sectionCount).fill("")];
     for (const student of students) {
       const row = await env.DB.prepare("SELECT content FROM practices WHERE student = ? AND chapter = ?").bind(student, chapter).first<{ content: string }>();
@@ -44,7 +44,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
     const body = await request.json() as { student?: number; chapter?: string; content?: string; sections?: string[] };
     const student = students[body.student ?? -1];
     if (!student) return Response.json({ error: "invalid student" }, { status: 400 });
-    const maxSections = body.chapter === "文獻探討進階" ? 9 : body.chapter === "文獻探討" ? 8 : 3;
+    const maxSections = body.chapter === "文獻探討進階" ? 8 : body.chapter === "文獻探討" ? 8 : 3;
     const cleanSections = body.sections?.slice(0, maxSections).map((item) => item.trim()) ?? [];
     let article = body.content ?? "";
     if (body.chapter === "研究動機" && cleanSections.length) article = cleanSections.filter(Boolean).join("\n\n");
@@ -57,15 +57,18 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
       }).filter(Boolean).join("\n\n");
     }
     if (body.chapter === "文獻探討進階" && cleanSections.length) {
-      const [aiClue, keywords, sourceTitle, sourceUnit, sourceUrl, originalPoint, ownWords, researchLink, verifyNext] = cleanSections;
-      article = [
-        aiClue && `準備查證的說法\n${aiClue}${keywords ? `\n查證關鍵字：${keywords}` : ""}`,
-        sourceTitle && `找到的原始資料\n${sourceTitle}${sourceUnit ? `／${sourceUnit}` : ""}${sourceUrl ? `\n${sourceUrl}` : ""}`,
-        originalPoint && `原文重點\n${originalPoint}`,
-        ownWords && `用自己的話說明\n${ownWords}`,
-        researchLink && `與研究問題的關係\n${researchLink}`,
-        verifyNext && `還需要查證\n${verifyNext}`,
-      ].filter(Boolean).join("\n\n");
+      const titles = ["植物油如何取得與精煉", "為什麼不宜反覆使用炸油"];
+      article = titles.map((title, index) => {
+        const [important, rewrite, inText, reference] = cleanSections.slice(index * 4, index * 4 + 4);
+        if (![important, rewrite, inText, reference].some(Boolean)) return "";
+        return [
+          `練習文本0${index + 1}｜${title}`,
+          important && `我選出的重要內容\n${important}`,
+          rewrite && `用自己的話改寫\n${rewrite}`,
+          inText && `正文引用練習\n${inText}`,
+          reference && `參考資料\n${reference}`,
+        ].filter(Boolean).join("\n");
+      }).filter(Boolean).join("\n\n");
     }
     const storedContent = body.chapter === "研究動機" || body.chapter === "文獻探討" || body.chapter === "文獻探討進階"
       ? JSON.stringify({ sections: cleanSections, article })

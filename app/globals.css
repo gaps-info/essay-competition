@@ -74,6 +74,13 @@ main { min-height:100vh; background-image:radial-gradient(#315b4b19 1px,transpar
 .literatureFields label { display:block; margin:10px 0 5px; color:#5f6b66; font-size:11px; font-weight:800; }
 .literatureFields input { width:100%; padding:11px 12px; border:1px solid #deddd7; border-radius:8px; outline:none; background:white; font-size:14px; }
 .literatureFields input:focus { border-color:var(--green); box-shadow:0 0 0 3px #285f4b18; }
+.practiceText { margin-top:14px; padding:15px; border-left:4px solid var(--orange); border-radius:8px; background:#f4efe4; color:#44514c; }
+.practiceText>strong { color:var(--green); font-size:12px; }
+.practiceText p { margin:8px 0; font-size:14px; line-height:1.8; }
+.practiceText small { display:block; line-height:1.6; }
+.practiceText a { display:inline-block; margin-top:7px; color:var(--green); font-size:12px; font-weight:800; }
+.citationReminder { margin:12px 0; padding:10px 12px; border-radius:8px; background:#fff5e8; color:#755334; font-size:12px; line-height:1.7; }
+.formatHint { display:block; margin:-1px 0 6px; color:#7b827e; font-size:11px; line-height:1.5; }
 .studentCard footer { display:flex; justify-content:space-between; align-items:center; padding:15px 21px 20px; color:#87908c; font-size:12px; }
 .studentCard footer button,.coachStrip button,.modal>button:last-child { border:0; border-radius:8px; padding:10px 15px; background:var(--green); color:white; font-weight:700; }
 .student1 footer button { background:var(--orange); }
