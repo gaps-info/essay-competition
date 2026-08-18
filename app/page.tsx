@@ -55,13 +55,13 @@ const citationPracticeTexts = [
   },
   {
     number: "03",
-    title: "混充油與標示不實",
-    sourceTitle: "油品混充及違法添加銅葉綠素事件Q&A",
-    unit: "衛生福利部食品藥物管理署",
-    year: "2013",
-    date: "2013年10月22日",
-    url: "https://www.fda.gov.tw/tc/sitecontent.aspx?sid=3694",
-    text: "臺灣曾發生食用油混充與標示不實事件。有些產品標示為單一種類的油，實際上卻混入其他較便宜的油；也有業者為了調整油品顏色，違法加入不能用在食用油中的銅葉綠素。當標示與真正成分不一致，消費者就無法從包裝正確判斷自己買到什麼油。",
+    title: "銅葉綠素油品事件",
+    sourceTitle: "食品消費權益事件中預防措施之妥適性——以銅葉綠素事件為例",
+    unit: "黃士洋、吳宗熹、潘志寬",
+    year: "2014",
+    date: "2014年",
+    url: "https://www.fda.gov.tw/tc/includes/GetFile.ashx?cid=27828&id=f636725224735036796",
+    text: "臺灣曾查獲標示為百分之百特級橄欖油的產品，疑似混入其他油脂，並違法添加銅葉綠素。當時主管機關除了下架、封存相關油品，也建立檢驗方法，希望判斷食用油中是否含有銅葉綠素。這起事件同時涉及食品安全、標示是否誠實，以及消費者知情的權利。",
   },
 ];
 
@@ -292,16 +292,16 @@ export default function Home() {
                         <small>資料改寫自：{practice.unit}（{practice.date}），〈{practice.sourceTitle}〉</small>
                         <a href={practice.url} target="_blank" rel="noreferrer">查看原始資料</a>
                       </div>
-                      <p className="citationReminder"><strong>先記住：</strong>AI 不是作者，也不是資料來源。可以請 AI 幫忙解釋，但文章中要引用原本發布資料的單位。</p>
+                      <p className="citationReminder"><strong>先記住：</strong>AI 不是作者，也不是資料來源。可以請 AI 幫忙解釋，但文章中要引用原文作者或發布單位。</p>
                       <label htmlFor={`important-${index}-${practiceIndex}`}>① 我選出的重要內容</label>
                       <textarea id={`important-${index}-${practiceIndex}`} value={sections[index]?.[field] ?? ""} onChange={(event) => updateSection(index, field, event.target.value)} placeholder="這段文本最重要的是什麼？先用短句記下來。" />
                       <label htmlFor={`rewrite-${index}-${practiceIndex}`}>② 不看原文，用自己的話改寫</label>
                       <textarea id={`rewrite-${index}-${practiceIndex}`} value={sections[index]?.[field + 1] ?? ""} onChange={(event) => updateSection(index, field + 1, event.target.value)} placeholder="想像你正在向同學說明，不要照抄原句。" />
                       <label htmlFor={`intext-${index}-${practiceIndex}`}>③ 放進文章並標示來源</label>
-                      <small className="formatHint">格式提示：發布單位（年份）指出，……</small>
+                      <small className="formatHint">格式提示：作者或發布單位（年份）指出，……</small>
                       <textarea id={`intext-${index}-${practiceIndex}`} value={sections[index]?.[field + 2] ?? ""} onChange={(event) => updateSection(index, field + 2, event.target.value)} placeholder={`${practice.unit}（${practice.year}）指出，……`} />
                       <label htmlFor={`reference-${index}-${practiceIndex}`}>④ 完成參考資料</label>
-                      <small className="formatHint">格式提示：發布單位（年份）。文章名稱。網址（查閱日期：＿＿）</small>
+                      <small className="formatHint">格式提示：作者或發布單位（年份）。文章名稱。網址（查閱日期：＿＿）</small>
                       <textarea id={`reference-${index}-${practiceIndex}`} value={sections[index]?.[field + 3] ?? ""} onChange={(event) => updateSection(index, field + 3, event.target.value)} placeholder="依照上方資料，完成一筆參考資料。" />
                     </section>
                   );

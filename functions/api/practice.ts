@@ -57,7 +57,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
       }).filter(Boolean).join("\n\n");
     }
     if (body.chapter === "文獻探討進階" && cleanSections.length) {
-      const titles = ["植物油如何取得與精煉", "為什麼不宜反覆使用炸油", "混充油與標示不實"];
+      const titles = ["植物油如何取得與精煉", "為什麼不宜反覆使用炸油", "銅葉綠素油品事件"];
       article = titles.map((title, index) => {
         const [important, rewrite, inText, reference] = cleanSections.slice(index * 4, index * 4 + 4);
         if (![important, rewrite, inText, reference].some(Boolean)) return "";
