@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const chapters = ["研究動機", "文獻探討", "研究方法", "研究結果與分析", "結論與建議"];
+const chapters = ["研究動機", "文獻探討", "文獻探討進階", "研究方法", "研究結果與分析", "結論與建議"];
 
 const prompts = [
   {
@@ -16,6 +16,12 @@ const prompts = [
     question: "把查到的資料，整理成能回答研究問題的內容",
     description: "一次完成一張任務卡。先記錄資料來源，再用自己的話說明重點，不需要照著原文抄寫。",
     tip: "資料不必多，重點是看懂、說清楚，並確認內容真的和食用油研究有關。",
+  },
+  {
+    title: "文獻探討｜進階練習",
+    question: "從 AI 提供的線索出發，找到可以查證的原始資料",
+    description: "AI 可以協助找方向，但不能成為引用來源。請完成查證、理解、改寫與連結研究問題四個步驟。",
+    tip: "判斷標準：別人能找到你的原始資料，而且你能不用看原文，用自己的話解釋內容。",
   },
 ];
 
@@ -34,6 +40,17 @@ function mergeChapterSections(chapter: number, values: string[]) {
       if (!content) return "";
       return `${task.title}\n${content}${source ? `\n（資料來源：${source}）` : ""}`;
     }).filter(Boolean).join("\n\n");
+  }
+  if (chapter === 2) {
+    const [aiClue, keywords, sourceTitle, sourceUnit, sourceUrl, originalPoint, ownWords, researchLink, verifyNext] = values.map((value) => value?.trim() ?? "");
+    return [
+      aiClue && `準備查證的說法\n${aiClue}${keywords ? `\n查證關鍵字：${keywords}` : ""}`,
+      sourceTitle && `找到的原始資料\n${sourceTitle}${sourceUnit ? `／${sourceUnit}` : ""}${sourceUrl ? `\n${sourceUrl}` : ""}`,
+      originalPoint && `原文重點\n${originalPoint}`,
+      ownWords && `用自己的話說明\n${ownWords}`,
+      researchLink && `與研究問題的關係\n${researchLink}`,
+      verifyNext && `還需要查證\n${verifyNext}`,
+    ].filter(Boolean).join("\n\n");
   }
   return values.filter((value) => value.trim()).join("\n\n");
 }
@@ -100,7 +117,7 @@ export default function Home() {
     const response = await fetch("/api/practice", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chapter: chapters[chapter], student, content: answers[student], sections: chapter <= 1 ? sections[student] : undefined }),
+      body: JSON.stringify({ chapter: chapters[chapter], student, content: answers[student], sections: chapter <= 2 ? sections[student] : undefined }),
     });
     if (response.ok) setSaved((current) => current.map((item, index) => (index === student ? true : item)));
   }
@@ -227,17 +244,54 @@ export default function Home() {
                   </section>
                 ))}
               </div>
+            ) : chapter === 2 ? (
+              <div className="sectionFields literatureFields advancedFields">
+                <section>
+                  <div className="sectionLabel"><span>01</span><div><strong>AI 只能提供線索</strong><small>先決定哪一個說法需要查證</small></div></div>
+                  <ul><li>AI 或搜尋摘要告訴你什麼？</li><li>這個說法有沒有清楚的原始來源？</li><li>可以使用哪些關鍵字尋找原文？</li></ul>
+                  <label htmlFor={`advanced-clue-${index}`}>準備查證的說法</label>
+                  <textarea id={`advanced-clue-${index}`} value={sections[index]?.[0] ?? ""} onChange={(event) => updateSection(index, 0, event.target.value)} placeholder="記錄想查證的內容，不把它當成引用資料" />
+                  <label htmlFor={`advanced-keywords-${index}`}>查證關鍵字</label>
+                  <input id={`advanced-keywords-${index}`} value={sections[index]?.[1] ?? ""} onChange={(event) => updateSection(index, 1, event.target.value)} placeholder="輸入兩到四個重要詞語" />
+                </section>
+                <section>
+                  <div className="sectionLabel"><span>02</span><div><strong>找到原始資料</strong><small>資料必須能被其他人找到與核對</small></div></div>
+                  <ul><li>文章有清楚的標題嗎？</li><li>是政府、學校、醫院或研究機構發布的嗎？</li><li>網址能直接開啟原始文章嗎？</li></ul>
+                  <label htmlFor={`advanced-title-${index}`}>文章標題</label>
+                  <input id={`advanced-title-${index}`} value={sections[index]?.[2] ?? ""} onChange={(event) => updateSection(index, 2, event.target.value)} placeholder="填寫原始文章的完整名稱" />
+                  <label htmlFor={`advanced-unit-${index}`}>作者或發布單位</label>
+                  <input id={`advanced-unit-${index}`} value={sections[index]?.[3] ?? ""} onChange={(event) => updateSection(index, 3, event.target.value)} placeholder="例如：衛生福利部食品藥物管理署" />
+                  <label htmlFor={`advanced-url-${index}`}>原始網址</label>
+                  <input id={`advanced-url-${index}`} value={sections[index]?.[4] ?? ""} onChange={(event) => updateSection(index, 4, event.target.value)} placeholder="貼上原始文章網址，不貼 AI 搜尋頁" />
+                </section>
+                <section>
+                  <div className="sectionLabel"><span>03</span><div><strong>看懂後再重寫</strong><small>先理解，再關掉原文用自己的話說</small></div></div>
+                  <ul><li>原文真正說明的重點是什麼？</li><li>有沒有把「可能」誤寫成「一定」？</li><li>你能向同學口頭解釋嗎？</li></ul>
+                  <label htmlFor={`advanced-point-${index}`}>原文真正說明的重點</label>
+                  <textarea id={`advanced-point-${index}`} value={sections[index]?.[5] ?? ""} onChange={(event) => updateSection(index, 5, event.target.value)} placeholder="閱讀時先整理重點" />
+                  <label htmlFor={`advanced-own-${index}`}>關掉原文後，用自己的話說明</label>
+                  <textarea id={`advanced-own-${index}`} value={sections[index]?.[6] ?? ""} onChange={(event) => updateSection(index, 6, event.target.value)} placeholder="想像你正在向同學解釋" />
+                </section>
+                <section>
+                  <div className="sectionLabel"><span>04</span><div><strong>連回研究問題</strong><small>確認這份資料真的有助於研究</small></div></div>
+                  <ul><li>它回答哪一個食用油研究問題？</li><li>它能放進文獻探討的哪個主題？</li><li>還有哪些說法需要繼續查證？</li></ul>
+                  <label htmlFor={`advanced-link-${index}`}>與研究問題的關係</label>
+                  <textarea id={`advanced-link-${index}`} value={sections[index]?.[7] ?? ""} onChange={(event) => updateSection(index, 7, event.target.value)} placeholder="說明這份資料可以幫助研究了解什麼" />
+                  <label htmlFor={`advanced-next-${index}`}>還需要查證的內容</label>
+                  <textarea id={`advanced-next-${index}`} value={sections[index]?.[8] ?? ""} onChange={(event) => updateSection(index, 8, event.target.value)} placeholder="沒有也可以留白" />
+                </section>
+              </div>
             ) : (
               <><label htmlFor={`answer-${index}`}>{prompts[chapter]?.title ?? "我的初步想法"}</label><textarea id={`answer-${index}`} value={answers[index]} onChange={(event) => updateAnswer(index, event.target.value)} placeholder="先想清楚本章要回答的問題，再用自己的方式組織內容。" /></>
             )}
             <footer>
-              <span>{saved[index] ? "✓ 已整併並同步到雲端" : chapter <= 1 ? "儲存時會自動整併各區內容" : "尚未儲存"}</span>
+              <span>{saved[index] ? "✓ 已整併並同步到雲端" : chapter <= 2 ? "儲存時會自動整併各區內容" : "尚未儲存"}</span>
               <button onClick={() => saveAnswer(index)}>儲存練習</button>
             </footer>
-            {chapter <= 1 && (
+            {chapter <= 2 && (
               <section className="articlePreview">
                 <div className="articlePreviewTitle">
-                  <div><span>MERGED ARTICLE</span><strong>{chapter === 1 ? "完整文獻探討預覽" : "完整文章預覽"}</strong></div>
+                  <div><span>MERGED ARTICLE</span><strong>{chapter === 1 ? "完整文獻探討預覽" : chapter === 2 ? "進階練習成果預覽" : "完整文章預覽"}</strong></div>
                   <small>{answers[index].replace(/\s/g, "").length} 字</small>
                 </div>
                 {answers[index] ? <div className="articleBody">{answers[index]}</div> : <p>完成上方分區後，整併的文章會顯示在這裡。</p>}
