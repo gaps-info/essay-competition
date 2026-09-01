@@ -18,7 +18,7 @@ main { min-height:100vh; background-image:radial-gradient(#315b4b19 1px,transpar
 .localBadge { font-size:13px; color:#67736e; }
 .localBadge i { display:inline-block; width:7px; height:7px; border-radius:50%; background:#69a26e; margin-right:6px; }
 .logoutButton { border:0; background:transparent; color:#67736e; font-size:12px; }
-.collabButton { border:0; border-radius:10px; color:white; background:var(--ink); padding:9px 20px; font-weight:700; line-height:1.25; }
+.collabButton { border:0; border-radius:10px; color:white; background:var(--ink); padding:9px 20px; font-weight:700; line-height:1.25; text-decoration:none; text-align:center; }
 .collabButton strong,.collabButton small { display:block; }
 .collabButton small { margin-top:3px; color:#d7e0dc; font-size:9px; font-weight:500; letter-spacing:.08em; }
 .hero { max-width:1240px; margin:auto; padding:72px 24px 46px; display:grid; grid-template-columns:1fr 290px; gap:70px; align-items:end; }

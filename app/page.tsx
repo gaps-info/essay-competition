@@ -113,7 +113,6 @@ export default function Home() {
   const [answers, setAnswers] = useState(["", ""]);
   const [sections, setSections] = useState<string[][]>([["", "", ""], ["", "", ""]]);
   const [saved, setSaved] = useState([false, false]);
-  const [showCollab, setShowCollab] = useState(false);
   const [showCoach, setShowCoach] = useState(false);
   const [citationStyles, setCitationStyles] = useState<string[][]>(() => [
     citationPracticeTexts.map(() => "narrative"),
@@ -189,10 +188,10 @@ export default function Home() {
         </a>
         <div className="headerActions">
           <span className="localBadge"><i /> 雲端同步模式</span>
-          <button className="collabButton" onClick={() => setShowCollab(true)}>
+          <a className="collabButton" href="/collab">
             <strong>進入正式共編</strong>
-            <small>課程結束後開放</small>
-          </button>
+            <small>共用文章已開放</small>
+          </a>
         </div>
       </header>
 
@@ -400,18 +399,6 @@ export default function Home() {
         </div>
       )}
 
-      {showCollab && (
-        <div className="modalBackdrop" onClick={() => setShowCollab(false)} role="presentation">
-          <section className="modal" role="dialog" aria-modal="true" aria-labelledby="collab-title" onClick={(event) => event.stopPropagation()}>
-            <button className="close" aria-label="關閉" onClick={() => setShowCollab(false)}>×</button>
-            <span className="modalIcon">共</span>
-            <p className="eyebrow">FORMAL COLLABORATION</p>
-            <h2 id="collab-title">正式共編空間，預留完成。</h2>
-            <p>等章節練習流程確認後，我們再一起決定內容如何整合、版本如何保留，以及老師如何回饋。</p>
-            <button onClick={() => setShowCollab(false)}>先回到分欄練習</button>
-          </section>
-        </div>
-      )}
     </main>
   );
 }
