@@ -109,7 +109,7 @@ export default function CollaborationPage() {
       <header className="collabTopbar">
         <a href="/" className="backLink">← 返回章節練習</a>
         <div className="collabBrand"><span>共</span><div><strong>正式共編工作室</strong><small>欣芸 × 宥晴</small></div></div>
-        <span className="cloudStatus"><i /> 共用文章已開放</span>
+        <div className="collabTopActions"><a href="/sources">資料收集區</a><span className="cloudStatus"><i /> 共用文章已開放</span></div>
       </header>
 
       <section className="collabIntro">
