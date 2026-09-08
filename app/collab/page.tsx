@@ -6,6 +6,73 @@ import "./collab.css";
 const chapters = ["研究動機", "文獻探討", "研究方法", "研究結果與分析", "結論與建議"];
 type CloudCopy = { content: string; updatedAt: string | null; editor: string };
 
+const literatureGuideSections = [
+  {
+    number: "01",
+    title: "中聯油脂事件的發生經過",
+    question: "這次事件發生了什麼事？",
+    prompts: [
+      "事件是在什麼時候被發現、通報與對外說明的？",
+      "是哪一種油品、哪一項物質出現問題？檢驗值和法定標準各是多少？",
+      "哪些產品或業者受到影響？主管機關採取了哪些處理行動？",
+      "新聞最初的說法和後來的調查結果，有沒有不同？",
+    ],
+    check: "完成後，要能依照時間順序說清楚事件，並在日期與數字旁標明資料來源。",
+  },
+  {
+    number: "02",
+    title: "食用油的製程與污染風險",
+    question: "黃豆如何變成大豆沙拉油？哪些環節需要把關？",
+    prompts: [
+      "從原料驗收到取油、精煉、檢驗和分裝，各步驟的目的為何？",
+      "哪些風險可能來自原料？哪些風險可能與製程或監測有關？",
+      "業者為什麼不能只在最後檢驗成品？",
+      "不同資料對事件原因的說明是否一致？哪一份是較晚公布的調查結果？",
+    ],
+    caution: "不要直接寫成「某一個步驟一定產生苯(a)駢芘」。官方調查指出，事件與高風險原料管理、製程控制及檢驗監測等多項因素交互影響有關。",
+    check: "完成後，要能畫出簡單製程順序，並分辨「可能原因」和「已確認的調查結果」。",
+  },
+  {
+    number: "03",
+    title: "苯(a)駢芘與健康風險",
+    question: "問題物質是什麼？健康風險要怎麼說才正確？",
+    prompts: [
+      "苯(a)駢芘是什麼？它是食品添加物，還是污染物？",
+      "「有檢出」和「超過標準」有什麼不同？",
+      "法定標準是多少？這次事件的檢驗結果是多少？",
+      "健康風險和攝取量、接觸時間有什麼關係？",
+    ],
+    caution: "不要把危害寫成必然結果，例如「吃一次就一定會生病」。應根據可靠資料，清楚區分物質的危害和實際暴露風險。",
+    check: "完成後，要能用自己的話解釋苯(a)駢芘，並正確比較檢驗值與標準。",
+  },
+  {
+    number: "04",
+    title: "食用油安全管理與事件處理",
+    question: "業者與政府如何防止問題油流入市場？",
+    prompts: [
+      "在原料、製程、成品與通報各階段，業者應該做哪些把關？",
+      "為什麼需要定期檢驗、保存紀錄和主動通報？",
+      "產品的批號與流向資料，為什麼能幫助事件處理？",
+      "下架、封存、回收和銷毀分別在處理什麼問題？",
+    ],
+    check: "完成後，要能分別說明業者與主管機關的責任，以及各項處理措施的目的。",
+  },
+  {
+    number: "05",
+    title: "消費者食安認知與正確行動",
+    question: "一般人需要知道、查證與做到什麼？",
+    prompts: [
+      "看到食安消息時，應先核對產品名稱、品牌、日期、批號中的哪些資料？",
+      "如何到政府公告或業者通知確認受影響產品？",
+      "政府資料、新聞、社群貼文和 AI 回答，哪些可以當作正式引用來源？",
+      "家中若有疑似問題產品，應如何確認並處理？",
+      "以上哪些知識適合變成問卷題目，了解大家是否真的知道？",
+    ],
+    caution: "AI 可以協助理解和整理方向，但不能當作文獻來源。正式稿要引用能查到作者、機關、年份與原始網址的資料。",
+    check: "完成後，要能提出可實際做到的查證方法，並挑出適合放進問卷的重點。",
+  },
+];
+
 export default function CollaborationPage() {
   const [chapter, setChapter] = useState(0);
   const [content, setContent] = useState("");
@@ -120,6 +187,43 @@ export default function CollaborationPage() {
       <nav className="collabChapters" aria-label="選擇共編章節">
         {chapters.map((item, index) => <button className={chapter === index ? "active" : ""} onClick={() => setChapter(index)} key={item}><span>{index + 1}</span>{item}</button>)}
       </nav>
+
+      {chapter === 1 && (
+        <section className="literatureGuide" aria-labelledby="literature-guide-title">
+          <header className="literatureGuideHeader">
+            <div>
+              <p className="eyebrow">LITERATURE REVIEW GUIDE · 文獻探討引導</p>
+              <h2 id="literature-guide-title">先理解資料，再用自己的話整理</h2>
+              <p>依序完成五個部分。每一部分都要比較不同來源，不能只抄一篇文章，也不能把 AI 當成引用來源。</p>
+            </div>
+            <div className="guideSafetyNote"><strong>原稿安全</strong><span>這裡只是提示，不會自動加入或改動共同正式稿。</span></div>
+          </header>
+
+          <div className="guideWorkflow" aria-label="文獻探討三個步驟">
+            <div><span>1</span><p><strong>找資料</strong>每個主題至少找 3 個可靠來源</p></div>
+            <div><span>2</span><p><strong>比一比</strong>確認日期、數字與不同說法</p></div>
+            <div><span>3</span><p><strong>整理引用</strong>用自己的話寫，標明作者或機關與年份</p></div>
+          </div>
+
+          <div className="guideCards">
+            {literatureGuideSections.map((section, index) => (
+              <details className="guideCard" key={section.number} open={index === 0 ? true : undefined}>
+                <summary>
+                  <span>{section.number}</span>
+                  <div><small>第 {index + 1} 部分</small><strong>{section.title}</strong></div>
+                  <i aria-hidden="true">＋</i>
+                </summary>
+                <div className="guideCardBody">
+                  <p className="guideMainQuestion">要回答：{section.question}</p>
+                  <ul>{section.prompts.map((prompt) => <li key={prompt}>{prompt}</li>)}</ul>
+                  {section.caution && <p className="guideCaution"><strong>特別注意</strong>{section.caution}</p>}
+                  <p className="guideCheck"><strong>完成檢查</strong>{section.check}</p>
+                </div>
+              </details>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="collabWorkspace">
         <aside className="draftShelf">
