@@ -77,7 +77,6 @@ export default function CollaborationPage() {
   const [chapter, setChapter] = useState(0);
   const [content, setContent] = useState("");
   const [editor, setEditor] = useState("共同編輯");
-  const [drafts, setDrafts] = useState(["", ""]);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const [lastEditor, setLastEditor] = useState("");
   const [dirty, setDirty] = useState(false);
@@ -92,10 +91,7 @@ export default function CollaborationPage() {
       setSaveState("idle");
       setLatestCloudCopy(null);
       const selected = chapters[chapter];
-      const [sharedResponse, draftsResponse] = await Promise.all([
-        fetch(`/api/collaboration?chapter=${encodeURIComponent(selected)}`, { cache: "no-store" }),
-        fetch(`/api/practice?chapter=${encodeURIComponent(selected)}`, { cache: "no-store" }),
-      ]);
+      const sharedResponse = await fetch(`/api/collaboration?chapter=${encodeURIComponent(selected)}`, { cache: "no-store" });
       if (cancelled) return;
       if (sharedResponse.ok) {
         const shared = await sharedResponse.json() as CloudCopy;
@@ -103,10 +99,6 @@ export default function CollaborationPage() {
         setUpdatedAt(shared.updatedAt ?? null);
         setLastEditor(shared.editor ?? "");
         setDirty(false);
-      }
-      if (draftsResponse.ok) {
-        const individual = await draftsResponse.json() as { answers?: string[] };
-        setDrafts([individual.answers?.[0] ?? "", individual.answers?.[1] ?? ""]);
       }
       setLoading(false);
     }
@@ -118,11 +110,6 @@ export default function CollaborationPage() {
     setContent(value);
     setDirty(true);
     setSaveState("idle");
-  }
-
-  function appendDraft(draft: string) {
-    if (!draft.trim()) return;
-    updateContent(`${content}${content.trim() ? "\n\n" : ""}${draft.trim()}`);
   }
 
   async function saveDocument() {
@@ -226,12 +213,6 @@ export default function CollaborationPage() {
       )}
 
       <section className="collabWorkspace">
-        <aside className="draftShelf">
-          <header><p className="eyebrow">INDIVIDUAL DRAFTS</p><h2>個別練習參考</h2><small>挑選可用的觀點，不必全部照搬。</small></header>
-          <article><div><span className="draftAvatar cai">蔡</span><strong>欣芸的練習</strong></div><p>{loading ? "正在載入……" : drafts[0] || "這個章節還沒有個別練習。"}</p><button disabled={!drafts[0]} onClick={() => appendDraft(drafts[0])}>加入正式稿</button></article>
-          <article><div><span className="draftAvatar yan">嚴</span><strong>宥晴的練習</strong></div><p>{loading ? "正在載入……" : drafts[1] || "這個章節還沒有個別練習。"}</p><button disabled={!drafts[1]} onClick={() => appendDraft(drafts[1])}>加入正式稿</button></article>
-        </aside>
-
         <article className="sharedDocument">
           <header><div><p className="eyebrow">SHARED DOCUMENT</p><h2>{chapters[chapter]}・共同正式稿</h2></div><div className="documentTools"><span>{content.replace(/\s/g, "").length} 字</span><button onClick={checkLatest}>載入最新版</button></div></header>
           {saveState === "conflict" && <div className="conflictNotice"><p><strong>雲端已有較新的內容。</strong>您的文字仍保留在畫面上。請先複製自己的文字，再載入 {latestCloudCopy?.editor} 儲存的最新版進行合併。</p><div><button onClick={() => navigator.clipboard.writeText(content)}>複製我的文字</button><button onClick={acceptLatest}>載入雲端最新版</button></div></div>}
