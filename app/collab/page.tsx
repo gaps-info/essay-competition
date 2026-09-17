@@ -163,11 +163,11 @@ export default function CollaborationPage() {
       <header className="collabTopbar">
         <a href="/" className="backLink">← 返回章節練習</a>
         <div className="collabBrand"><span>共</span><div><strong>正式共編工作室</strong><small>欣芸 × 宥晴</small></div></div>
-        <div className="collabTopActions"><a href="/sources">資料收集區</a><span className="cloudStatus"><i /> 共用文章已開放</span></div>
+        <div className="collabTopActions"><a href="/results">研究成果</a><a href="/sources">資料收集區</a><span className="cloudStatus"><i /> 共用文章已開放</span></div>
       </header>
 
       <section className="collabIntro">
-        <div><p className="eyebrow">FORMAL COLLABORATION · 正式共編</p><h1>把兩份想法，整理成一篇文章。</h1><p>先查看兩人的個別練習，再共同選擇內容、補上證據，最後儲存為正式稿。</p></div>
+        <div><p className="eyebrow">FORMAL COLLABORATION · 正式共編</p><h1>把想法與證據，整理成一篇文章。</h1><p>共同整理各章內容、補上證據，並把確認過的版本儲存為正式稿。</p></div>
         <div className="editorIdentity"><label htmlFor="editor">目前編輯者</label><select id="editor" value={editor} onChange={(event) => setEditor(event.target.value)}><option>共同編輯</option><option>欣芸</option><option>宥晴</option><option>老師</option></select></div>
       </section>
 
@@ -212,12 +212,19 @@ export default function CollaborationPage() {
         </section>
       )}
 
+      {chapter === 3 && (
+        <section className="resultsShortcut">
+          <div><p className="eyebrow">QUESTIONNAIRE RESULTS · 問卷結果</p><h2>六節統計結果與討論已整理完成</h2><p>先查看完整表格與圖表，再回到共同正式稿調整文章內容。</p></div>
+          <a href="/results">查看完整研究結果</a>
+        </section>
+      )}
+
       <section className="collabWorkspace">
         <article className="sharedDocument">
           <header><div><p className="eyebrow">SHARED DOCUMENT</p><h2>{chapters[chapter]}・共同正式稿</h2></div><div className="documentTools"><span>{content.replace(/\s/g, "").length} 字</span><button onClick={checkLatest}>載入最新版</button></div></header>
           {saveState === "conflict" && <div className="conflictNotice"><p><strong>雲端已有較新的內容。</strong>您的文字仍保留在畫面上。請先複製自己的文字，再載入 {latestCloudCopy?.editor} 儲存的最新版進行合併。</p><div><button onClick={() => navigator.clipboard.writeText(content)}>複製我的文字</button><button onClick={acceptLatest}>載入雲端最新版</button></div></div>}
           <label htmlFor="shared-content">兩人共同整理的內容</label>
-          <textarea id="shared-content" disabled={loading} value={content} onChange={(event) => updateContent(event.target.value)} placeholder="比較兩人的個別練習後，在這裡共同整理正式文章。請保留自己的語氣，並為資料加上正確引用。" />
+          <textarea id="shared-content" disabled={loading} value={content} onChange={(event) => updateContent(event.target.value)} placeholder="在這裡共同整理正式文章。請保留自己的語氣，並為資料加上正確引用。" />
           <footer><p>{loading ? "正在載入共用文章……" : saveState === "saving" ? "正在儲存……" : saveState === "saved" ? `✓ 已同步到雲端${lastEditor ? `・最後編輯：${lastEditor}` : ""}` : saveState === "error" ? "儲存或載入失敗，請再試一次" : dirty ? "有尚未儲存的修改" : updatedAt ? `已載入雲端版本${lastEditor ? `・最後編輯：${lastEditor}` : ""}` : "尚未建立這個章節的正式稿"}</p><button disabled={loading || saveState === "saving" || !dirty} onClick={saveDocument}>儲存共同正式稿</button></footer>
         </article>
       </section>

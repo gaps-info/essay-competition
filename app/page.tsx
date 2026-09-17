@@ -188,6 +188,7 @@ export default function Home() {
         </a>
         <div className="headerActions">
           <span className="localBadge"><i /> 雲端同步模式</span>
+          <a className="sourceButton" href="/results">研究成果</a>
           <a className="sourceButton" href="/sources">資料收集區</a>
           <a className="collabButton" href="/collab">
             <strong>進入正式共編</strong>
