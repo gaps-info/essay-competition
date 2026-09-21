@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import "./collab.css";
+import ConclusionCoach from "./ConclusionCoach";
 
 const chapters = ["研究動機", "文獻探討", "研究方法", "研究結果與分析", "結論與建議"];
 type CloudCopy = { content: string; updatedAt: string | null; editor: string };
@@ -73,56 +74,6 @@ const literatureGuideSections = [
   },
 ];
 
-const conclusionEvidence = [
-  { value: "88.5%", label: "看到食安新聞會擔心家中油品" },
-  { value: "84.2%", label: "願意學習食用油安全知識" },
-  { value: "43.6%", label: "學生答對反覆加熱題" },
-  { value: "25.6%", label: "學生答對精製判斷題" },
-  { value: "71.8%", label: "用包裝標示判斷油品安全" },
-  { value: "56.1%", label: "最想了解有害物質與健康" },
-];
-
-const conclusionFindingGroups = [
-  {
-    number: "（一）",
-    title: "關心程度高，但深入了解仍不足",
-    evidence: "可對照：88.5%會擔心家中油品；51.4%聽過有害物質但不太了解；只有30.1%大致了解至少一種物質。",
-    task: "先寫出這組數字共同呈現的發現，再解釋「聽過消息」和「真正了解」並不相同。",
-  },
-  {
-    number: "（二）",
-    title: "學生在反覆加熱與精製判斷較需要加強",
-    evidence: "可比較：學生答對反覆加熱題43.6%、精製判斷題25.6%；成人分別為89.2%與61.5%。",
-    task: "說明學生與成人的差異集中在哪裡，以及哪些知識適合成為之後的學習重點。",
-  },
-  {
-    number: "（三）",
-    title: "生活資訊常被使用，大家也想學習判讀方法",
-    evidence: "可連結：71.8%看包裝標示、63.6%從新聞取得資訊；最想了解健康影響56.1%、物質來源54.4%與製程50.6%。",
-    task: "整理大家平常怎麼判斷與接收資訊，再說明未來的學習內容應該回應哪些需要。",
-  },
-];
-
-const recommendationGroups = [
-  {
-    number: "（一）",
-    audience: "給學校與老師",
-    basis: "根據學生在反覆加熱與精製判斷題的正確率較低",
-    actions: ["安排食用油製程、反覆加熱與精製觀念的簡單課程", "用真實油品包裝練習讀成分、日期和檢驗資訊", "用食安新聞練習找來源、比對政府公告"],
-  },
-  {
-    number: "（二）",
-    audience: "給政府與食安單位",
-    basis: "根據多數人會擔心食安新聞，且新聞是主要資訊來源",
-    actions: ["用容易理解的圖文說明問題物質、標準與健康風險", "清楚公布受影響的產品名稱、批號及處理進度", "提供民眾容易查找的檢驗與查證資料"],
-  },
-  {
-    number: "（三）",
-    audience: "給學生與家庭",
-    basis: "根據包裝標示是最常使用的判斷依據，也有不少人從社群媒體接收消息",
-    actions: ["購買前閱讀成分、有效日期、製造資訊與檢驗資料", "遇到食安消息時先確認產品名稱與批號，再查政府公告", "不只看標題，也不要轉傳尚未查證的食安訊息"],
-  },
-];
 
 export default function CollaborationPage() {
   const [chapter, setChapter] = useState(0);
@@ -270,57 +221,7 @@ export default function CollaborationPage() {
         </section>
       )}
 
-      {chapter === 4 && (
-        <section className="conclusionGuide" aria-labelledby="conclusion-guide-title">
-          <header className="conclusionGuideHeader">
-            <div><p className="eyebrow">CONCLUSION GUIDE · 結論與建議引導</p><h2 id="conclusion-guide-title">像參考文章一樣：先寫研究結論，再分對象提出建議</h2><p>每一點先用一句完整的小標題說出發現，再用數據與解釋完成一段；建議則要寫清楚「給誰、為什麼、可以怎麼做」。</p></div>
-            <div className="guideSafetyNote"><strong>原稿安全</strong><span>下方內容只供思考，不會自動加入或改動共同正式稿。</span></div>
-          </header>
-
-          <div className="referenceStructure" aria-label="參考文章的結論與建議結構">
-            <div><span>一、研究結論</span><strong>一句話發現</strong><i>＋</i><strong>數據證據</strong><i>＋</i><strong>發現代表的意思</strong></div>
-            <div><span>二、研究建議</span><strong>建議對象</strong><i>＋</i><strong>研究根據</strong><i>＋</i><strong>具體做法</strong></div>
-          </div>
-
-          <div className="conclusionEvidence" aria-label="研究結果重點速查">
-            {conclusionEvidence.map((item) => <div key={item.label}><strong>{item.value}</strong><span>{item.label}</span></div>)}
-          </div>
-          <p className="evidenceReminder">這些數字是速查重點，不必全部放進結論；請選擇真正能回答研究問題的資料。</p>
-
-          <section className="conclusionPart" aria-labelledby="conclusion-part-title">
-            <div className="partHeading"><span>一</span><div><p className="eyebrow">RESEARCH CONCLUSIONS</p><h3 id="conclusion-part-title">研究結論：完成三個「小標題＋說明段」</h3></div></div>
-            <p className="partInstruction">以下是可以整理的三類發現，不是可以直接抄寫的範文。請重新查看表4-1至表4-6，用自己的話決定小標題和說明。</p>
-            <div className="findingCards">
-              {conclusionFindingGroups.map((item) => (
-                <article className="findingCard" key={item.number}>
-                  <span>{item.number}</span><h4>{item.title}</h4><p className="findingEvidence">{item.evidence}</p><p><strong>寫作任務：</strong>{item.task}</p>
-                </article>
-              ))}
-            </div>
-            <div className="paragraphBlueprint"><strong>每一段的寫作骨架</strong><ol><li>小標題：用一句完整的話寫出主要發現。</li><li>證據：選一至三個重要數字，不必重抄整張表。</li><li>解釋：比較數字，說明這個發現代表什麼。</li></ol></div>
-          </section>
-
-          <section className="recommendationPart" aria-labelledby="recommendation-part-title">
-            <div className="partHeading"><span>二</span><div><p className="eyebrow">RESEARCH RECOMMENDATIONS</p><h3 id="recommendation-part-title">研究建議：分對象寫出真正做得到的方法</h3></div></div>
-            <p className="partInstruction">參考文章把建議分給執行單位、民眾與學校；你們可以依食用油研究分成下面三類。每一項都必須接回前面的調查結果。</p>
-            <div className="recommendationCards">
-              {recommendationGroups.map((item) => (
-                <article className="recommendationCard" key={item.number}>
-                  <header><span>{item.number}</span><h4>{item.audience}</h4></header>
-                  <p className="recommendationBasis"><strong>研究根據</strong>{item.basis}</p>
-                  <div><strong>可以思考的做法</strong><ul>{item.actions.map((action) => <li key={action}>{action}</li>)}</ul></div>
-                </article>
-              ))}
-            </div>
-            <p className="scopeReminder"><strong>範圍要說清楚：</strong>本研究只有183份問卷，結論應寫成「本次受訪者呈現的情形」，不能直接代表所有台灣民眾；問卷回答也不等於生活中一定會採取相同行動。</p>
-          </section>
-
-          <div className="conclusionChecklist">
-            <div><p className="eyebrow">FINAL CHECK · 完稿前檢查</p><ul><li>有「一、研究結論」與「二、研究建議」</li><li>每個結論都有小標題、數據與解釋</li><li>每個建議都寫清楚對象、根據與做法</li><li>清楚限定為本次183份問卷結果</li></ul></div>
-            <a href="/results">回頭查看六節完整結果</a>
-          </div>
-        </section>
-      )}
+      {chapter === 4 && <ConclusionCoach key={editor} editor={editor} disabled={loading || saveState === "saving" || saveState === "conflict"} onAppend={text => updateContent(content.trimEnd() + (content.trim() ? "\n\n" : "") + text)} />}
 
       <section className="collabWorkspace">
         <article className="sharedDocument">
