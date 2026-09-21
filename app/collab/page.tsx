@@ -73,6 +73,67 @@ const literatureGuideSections = [
   },
 ];
 
+const conclusionEvidence = [
+  { value: "88.5%", label: "看到食安新聞會擔心家中油品" },
+  { value: "84.2%", label: "願意學習食用油安全知識" },
+  { value: "43.6%", label: "學生答對反覆加熱題" },
+  { value: "25.6%", label: "學生答對精製判斷題" },
+  { value: "71.8%", label: "用包裝標示判斷油品安全" },
+  { value: "56.1%", label: "最想了解有害物質與健康" },
+];
+
+const conclusionGuideSections = [
+  {
+    number: "01",
+    title: "先對照研究問題",
+    question: "這次研究原本想知道的事情，現在回答了嗎？",
+    prompts: [
+      "回到第一章，把每一個研究問題逐一找出來。",
+      "哪些問題由文獻資料回答？哪些問題由問卷結果回答？",
+      "每一個問題都能找到對應的結果嗎？還有哪些沒有真正回答？",
+      "答案是否只使用這次研究真的查到或調查到的內容？",
+    ],
+    check: "完成後，每一個研究問題都應該有簡短、明確的回答；沒有資料支持的部分要誠實說明。",
+  },
+  {
+    number: "02",
+    title: "整理最重要的研究結論",
+    question: "六節結果中，哪三到四項發現最能回答研究目的？",
+    prompts: [
+      "不要把六張表全部重抄一次，只挑真正重要的發現。",
+      "可以比較『大家的關心程度』和『實際答題表現』是否一致。",
+      "學生與成人的差異，集中出現在哪些知識題？",
+      "大家平常依靠哪些資訊，又最想繼續了解哪些內容？",
+    ],
+    caution: "問卷只能說明這183份回答呈現的情形，不能直接寫成所有學生、成人或全台灣民眾都一樣，也不能把同時出現的結果寫成因果關係。",
+    check: "完成後，讀者不看表格，也能從結論掌握這次研究最重要的三到四項發現。",
+  },
+  {
+    number: "03",
+    title: "從發現提出具體建議",
+    question: "根據結果，誰可以做什麼，才能讓食用油安全知識更清楚？",
+    prompts: [
+      "學生在反覆加熱與精製判斷題較不熟悉，學校教學可以加強哪些內容？",
+      "新聞與社群媒體是主要資訊來源，可以安排哪些查證練習？",
+      "包裝標示是常用判斷依據，可以如何練習閱讀成分、日期與檢驗資訊？",
+      "建議是否寫清楚對象、行動和理由，而不是只寫『多多宣導』？",
+    ],
+    check: "每一項建議都要能指出它根據哪一項研究發現，而且是學生、學校或家庭實際做得到的事。",
+  },
+  {
+    number: "04",
+    title: "說明限制與未來改進",
+    question: "這次研究還有哪些做不到或看不清楚的地方？",
+    prompts: [
+      "183份回答有特定的調查時間與參與者，能不能代表更多地區的人？",
+      "問卷記錄的是回答與想法，是否等於生活中真的會這樣做？",
+      "本次知道很多人會看包裝，但沒有實際測試他們能不能正確解讀。",
+      "未來可以增加哪些對象，或加入閱讀標示、判讀新聞等實作題？",
+    ],
+    check: "限制不是承認失敗，而是讓讀者知道結果可以解釋到哪裡，也讓下一次研究做得更完整。",
+  },
+];
+
 export default function CollaborationPage() {
   const [chapter, setChapter] = useState(0);
   const [content, setContent] = useState("");
@@ -216,6 +277,39 @@ export default function CollaborationPage() {
         <section className="resultsShortcut">
           <div><p className="eyebrow">QUESTIONNAIRE RESULTS · 問卷結果</p><h2>六節統計結果與討論已整理完成</h2><p>先查看完整表格與圖表，再回到共同正式稿調整文章內容。</p></div>
           <a href="/results">查看完整研究結果</a>
+        </section>
+      )}
+
+      {chapter === 4 && (
+        <section className="conclusionGuide" aria-labelledby="conclusion-guide-title">
+          <header className="conclusionGuideHeader">
+            <div><p className="eyebrow">CONCLUSION GUIDE · 結論與建議引導</p><h2 id="conclusion-guide-title">不是再抄一次結果，而是回答「我們發現了什麼」</h2><p>依照研究問題挑出重要發現，說明它代表的意義，再提出有根據、做得到的建議。</p></div>
+            <div className="guideSafetyNote"><strong>原稿安全</strong><span>下方內容只供思考，不會自動加入或改動共同正式稿。</span></div>
+          </header>
+
+          <div className="conclusionEvidence" aria-label="研究結果重點速查">
+            {conclusionEvidence.map((item) => <div key={item.label}><strong>{item.value}</strong><span>{item.label}</span></div>)}
+          </div>
+          <p className="evidenceReminder">這些數字是速查重點，不必全部放進結論；請選擇真正能回答研究問題的資料。</p>
+
+          <div className="conclusionCards">
+            {conclusionGuideSections.map((section, index) => (
+              <details className="conclusionCard" key={section.number} open={index === 0 ? true : undefined}>
+                <summary><span>{section.number}</span><div><small>步驟 {index + 1}</small><strong>{section.title}</strong></div><i aria-hidden="true">＋</i></summary>
+                <div className="conclusionCardBody">
+                  <p className="guideMainQuestion">要回答：{section.question}</p>
+                  <ul>{section.prompts.map((prompt) => <li key={prompt}>{prompt}</li>)}</ul>
+                  {section.caution && <p className="guideCaution"><strong>特別注意</strong>{section.caution}</p>}
+                  <p className="guideCheck"><strong>完成檢查</strong>{section.check}</p>
+                </div>
+              </details>
+            ))}
+          </div>
+
+          <div className="conclusionChecklist">
+            <div><p className="eyebrow">FINAL CHECK · 完稿前檢查</p><ul><li>結論有逐一回應研究問題</li><li>建議能找到對應的調查結果</li><li>沒有把推測寫成事實或因果</li><li>清楚限定為本次183份問卷結果</li></ul></div>
+            <a href="/results">回頭查看六節完整結果</a>
+          </div>
         </section>
       )}
 
